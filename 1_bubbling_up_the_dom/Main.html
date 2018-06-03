@@ -1,0 +1,166 @@
+<html>
+
+<head>
+    <style>
+        #element_1 {
+            width: 500px;
+            height: 300px;
+            border-width: 1px;
+            border-color: black;
+            border-style: solid;
+            background-color: aqua;
+            display: block;
+            padding: 10px;
+        }
+
+        #element_1_1 {
+            width: 480px;
+            height: 115px;
+            border-width: 1px;
+            border-color: black;
+            border-style: solid;
+            background-color: chartreuse;
+            display: block;
+            padding: 10px;
+        }
+
+        #element_1_2 {
+            width: 480px;
+            height: 115px;
+            margin-top: 10px;
+            border-width: 1px;
+            border-color: black;
+            border-style: solid;
+            background-color: blueviolet;
+            display: block;
+            padding: 10px;
+        }
+
+        .clickable {
+            cursor: pointer;
+        }
+
+        #console_ {
+            width: 500px;
+            height: 270px;
+            margin-top: 10px;
+            border-width: 1px;
+            border-color: black;
+            border-style: solid;
+            display: block;
+            padding: 10px;
+            overflow: scroll;
+        }
+    </style>
+    <script src="jquery-3.3.1.min.js"></script>
+    <script>
+
+        let diplayMessage = function (elementId, event_) {
+            let console_ = $("#console_");
+            console_.html(console_.html() + event_ + ': ' + this.id + '</br>');
+        }
+
+        $(document).ready(function () {
+
+            let checkBoxPreventDefault = $("#checkBoxPreventDefault");
+            let checkBoxStopProgationconsole = $("#checkBoxStopProgation");
+            let checkBoxStopImmediatePropagation = $("#checkBoxStopImmediatePropagation");
+
+
+            $(".clickable").on("click dblclick mousedown", function (event) {
+
+                diplayMessage.apply(this, [this.id, event.type]);
+
+                if (checkBoxPreventDefault.is(':checked')) {
+                    event.preventDefault();
+                    return false;
+                }
+
+                if (checkBoxStopProgationconsole.is(':checked')) {
+                    event.stopPropagation();
+                }
+
+                if (checkBoxStopImmediatePropagation.is(':checked')) {
+                    event.stopImmediatePropagation();
+                }
+
+            });
+
+            $(".clickable").on("click dblclick mousedown", function (event) {
+                diplayMessage.apply(this, [this.id, event.type + " second handler"]);
+            });
+
+        });
+    </script>
+</head>
+
+<body>
+    <div style="float: left;">
+        <div id="element_1" class="clickable">
+            Element 1
+            <div id="element_1_1" class="clickable">
+                Element 1.1
+                <br/> Element 1.1 Text Text text Text
+                <br/> Element 1.1 Text Text text Text
+                <br/> Element 1.1 Text Text text Text
+                <br/>
+            </div>
+            <div id="element_1_2" class="clickable">
+                Element 1.2
+                <br/> Element 1.1 Text Text text Text
+                <br/> Element 1.1 Text Text text Text
+                <br/> Element 1.1 Text Text text Text
+                <br/>
+            </div>
+        </div>
+
+        <div id="console_">
+            Console
+            <br/>
+        </div>
+    </div>
+    <div style="float: left;">
+
+        <input type="checkbox" id="checkBoxPreventDefault">
+        <label for="checkBoxPreventDefault"> preventDefault()</label>
+
+        <pre>
+            If preventDefault() is used, 
+            the default behaviour of an element will not run.
+            For example: if you double click one of the divs on the 
+            left, the text will not be selected. It happens because
+            because text selection is a default behaviour when an element
+            is double clicked and it will be prevented. 
+            Attention, for this example to work the event 'mousedown' 
+            should also be registered.
+        </pre>
+
+        <br/>
+
+        <input type="checkbox" id="checkBoxStopProgation">
+        <label for="checkBoxStopProgation"> stopProgation()</label>
+
+        <pre>
+            If stopProgation() is used, 
+            the parent of an element which is also listening to the 
+            same event of its children will not have its event handled.
+        </pre>
+
+        <br/>
+
+        <input type="checkbox" id="checkBoxStopImmediatePropagation">
+        <label for="checkBoxStopImmediatePropagation"> stopImmediateProgation()</label>
+
+        <pre>
+            If stopImmediatePropagation() is used, 
+            it will happen what exactly happens when stopProgation() is used,
+            but additionally, if the element has additional handlers to the 
+            same event, only one of them will execute.
+        </pre>
+
+        <br/>
+
+    </div>
+</body>
+
+</html>
