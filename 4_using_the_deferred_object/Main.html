@@ -1,0 +1,86 @@
+<html>
+
+<head>
+    <script src="jquery-3.3.1.min.js"></script>
+    <style>
+        .display {
+            width: 300px;
+            height: 300px;
+            border-style: solid;
+            border-width: 1px;
+            margin-left: 5px;
+        }
+
+        .displayContainer {
+            float: left;
+            margin-top: 10px;
+        }
+
+        .newLine {
+            clear: both;
+            float: left;
+            margin-top: 10px
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+
+            let loadContent = function (options) {
+                let deferred = jQuery.Deferred();
+                let contentUrl = options.url;
+                let targetElement = $("#" + options.target);
+
+                $.get(contentUrl, function () { }, 'html')
+                    .done(
+                        function (result) {
+                            targetElement.html(result);
+                            deferred.resolve();
+                        })
+                    .fail(
+                        function (result) {
+                            $("#divMessage").html("Error while loading: " + contentUrl);
+                            deferred.reject(result);
+                        });
+
+                return deferred.promise();
+            }
+
+            let load = function () {
+                $.when(
+                    loadContent({ url: 'content1.html', target: 'checkboxFail1' }),
+                    loadContent({ url: 'content1.html', target: 'checkboxFail1' }),
+                    loadContent({ url: 'content1.html', target: 'checkboxFail1' }),
+                )
+                    .done(function () {
+                        $("#divMessage").html("All promises were kept");
+                    });
+            };
+
+            $("#buttonLoad").on("click", load);
+        });
+    </script>
+</head>
+
+<body>
+    <button id="buttonLoad">Load</button>
+    <br/>
+    <div class="displayContainer">
+        <input type="checkbox" id="checkboxFail1" />
+        <label for="checkboxFail1">Forces fail</label>
+        <div id="display1" class="display"></div>
+    </div>
+    <div class="displayContainer">
+        <input type="checkbox" id="checkboxFail2" />
+        <label for="checkboxFail2">Forces fail</label>
+        <div id="display2" class="display"></div>
+    </div>
+    <div class="displayContainer">
+        <input type="checkbox" id="checkboxFail3" />
+        <label for="checkboxFail3">Forces fail</label>
+        <div id="display3" class="display"></div>
+    </div>
+    <button id="buttonProceed" class="newLine">Proceed</button>
+    <div id="divMessage" class="newLine"></div>
+</body>
+
+</html>
