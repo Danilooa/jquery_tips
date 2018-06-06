@@ -25,10 +25,18 @@
     <script>
         $(document).ready(function () {
 
+            let writeMessage = function (message) {
+                $("#divMessage").html(
+                    $("#divMessage").html() +
+                    "<br/>" +
+                    message);
+            }
+
             let loadContent = function (options) {
                 let deferred = jQuery.Deferred();
                 let contentUrl = options.url;
                 let targetElement = $("#" + options.target);
+
 
                 $.get(contentUrl, function () { }, 'html')
                     .done(
@@ -38,7 +46,7 @@
                         })
                     .fail(
                         function (result) {
-                            $("#divMessage").html("Error while loading: " + contentUrl);
+                            writeMessage("Error while loading: " + contentUrl);
                             deferred.reject(result);
                         });
 
@@ -48,11 +56,14 @@
             let load = function () {
                 $.when(
                     loadContent({ url: 'content1.html', target: 'checkboxFail1' }),
-                    loadContent({ url: 'content1.html', target: 'checkboxFail1' }),
-                    loadContent({ url: 'content1.html', target: 'checkboxFail1' }),
+                    loadContent({ url: 'content2.html', target: 'checkboxFail2' }),
+                    loadContent({ url: 'content3.html', target: 'checkboxFail3' }),
                 )
-                    .done(function () {
-                        $("#divMessage").html("All promises were kept");
+                    .done(function (result) {
+                        writeMessage("All promises were kept");
+                    })
+                    .fail(function (reason) {
+                        writeMessage("Some of the promises were rejected " + reason.statusText);
                     });
             };
 
