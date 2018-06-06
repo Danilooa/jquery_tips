@@ -1,0 +1,38 @@
+<html>
+
+<head>
+    <script src="jquery-3.3.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#buttonTrigger").on(
+                "click",
+                function () {
+                    $("#eventsOrigin").trigger(
+                        "click",
+                        { message: "Data passed using trigger" }
+                    );
+                });
+
+            $("#eventsOrigin").on(
+                "click",
+                { message: "Data passed using .on" },
+                function (event, triggerData) {
+                    $("#console").html($("#console").html() + "<br/>" + event.data.message);
+                    $("#console").html($("#console").html() + "<br/>" + triggerData.message);
+                }
+            );
+        });
+    </script>
+</head>
+
+<body>
+    <button id="buttonTrigger">Fires events using $(trigger)</button>
+
+    <div id="eventsOrigin">
+        This will be element that fires the events
+    </div>
+
+    <div id="console"></div>
+</body>
+
+</html>

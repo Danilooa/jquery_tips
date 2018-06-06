@@ -55,41 +55,72 @@
     <script src="jquery-3.3.1.min.js"></script>
     <script>
 
-        let diplayMessage = function (elementId, event_) {
+        let diplayMessage = function (elementId, eventType, optionalDetailsParameter) {
             let console_ = $("#console_");
-            console_.html(console_.html() + event_ + ': ' + this.id + '</br>');
+            let optionalDetails = optionalDetailsParameter ? optionalDetailsParameter : "";
+            console_.html(console_.html() + eventType + ': ' + elementId + ' ' + optionalDetails + '</br>');
+        }
+
+        let clearConsole = function () {
+            $("#console_").html("Console<br/>");
         }
 
         $(document).ready(function () {
 
+
             let checkBoxPreventDefault = $("#checkBoxPreventDefault");
             let checkBoxStopProgationconsole = $("#checkBoxStopProgation");
             let checkBoxStopImmediatePropagation = $("#checkBoxStopImmediatePropagation");
+            let namedFunction = function (event) {
+                diplayMessage(this.id, event.type, 'namedFunction is running ... ');
+            }
 
-
-            $(".clickable").on("click dblclick mousedown", function (event) {
-
-                diplayMessage.apply(this, [this.id, event.type]);
-
-                if (checkBoxPreventDefault.is(':checked')) {
-                    event.preventDefault();
-                    return false;
+            $("#checkAddNamedFunction").change(function (event) {
+                if ($(this).is(':checked')) {
+                    $(".clickable").on("click dblclick mousedown", namedFunction);
+                } else {
+                    $(".clickable").off("click dblclick mousedown", namedFunction);
                 }
-
-                if (checkBoxStopProgationconsole.is(':checked')) {
-                    event.stopPropagation();
-                }
-
-                if (checkBoxStopImmediatePropagation.is(':checked')) {
-                    event.stopImmediatePropagation();
-                }
-
             });
 
-            $(".clickable").on("click dblclick mousedown", function (event) {
-                diplayMessage.apply(this, [this.id, event.type + " second handler"]);
-            });
+            $(".clickable")
+                /**
+                * Since it runs when the page is ready, off() will remove
+                * all the handlers that have added previously to the given
+                * selector. In this case, it will have no affect as the 
+                * are all added after this point. 
+                */
+                .on("click dblclick mousedown", function (event) {
 
+                    diplayMessage.apply(this, [this.id, event.type]);
+
+                    if (checkBoxPreventDefault.is(':checked')) {
+                        event.preventDefault();
+                        return false;
+                    }
+
+                    if (checkBoxStopProgationconsole.is(':checked')) {
+                        event.stopPropagation();
+                    }
+
+                    if (checkBoxStopImmediatePropagation.is(':checked')) {
+                        event.stopImmediatePropagation();
+                    }
+
+                })
+
+            $(".clickable")
+                .on("click dblclick mousedown", function (event) {
+                    diplayMessage.apply(this, [this.id, event.type + " second handler"]);
+                });
+            /**
+             * Since it runs when the page is ready, off() will remove
+             * all the handlers that have added previously to the given
+             * selector. In this case, all the handlers will be removed.
+             */
+            //.off();
+
+            $("#buttonClearConsole").on("click", clearConsole);
         });
     </script>
 </head>
@@ -118,6 +149,8 @@
             Console
             <br/>
         </div>
+
+        <button id="buttonClearConsole">Clear console</button>
     </div>
     <div style="float: left;">
 
@@ -159,6 +192,9 @@
         </pre>
 
         <br/>
+
+        <input type="checkbox" id="checkAddNamedFunction">
+        <label for="checkAddNamedFunction"> Add / Remove namedFunction</label>
 
     </div>
 </body>

@@ -1,0 +1,41 @@
+<html>
+
+<head>
+    <script src="jquery-3.3.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            let THREE_CLICKS_EVENT = "three_click_event";
+            let nonDomObject = {
+                id: "nonDomObject"
+            };
+            let threeClickHandler = function () {
+                $("#console").html($("#console").html() + "<br/>" + this.id + " fired a three click event");
+            }
+
+            $("#buttonCusomEvent").on("click", function () {
+                let clickCount = $(this).data("clickCount");
+                if (!clickCount) {
+                    clickCount = 1;
+                }
+                if (clickCount >= 3) {
+                    $(this).trigger(THREE_CLICKS_EVENT);
+                    $(nonDomObject).trigger(THREE_CLICKS_EVENT);
+                    return;
+                }
+                clickCount++;
+                $(this).data("clickCount", clickCount);
+            });
+
+            $(nonDomObject).on(THREE_CLICKS_EVENT, threeClickHandler);
+            $("#buttonCusomEvent").on(THREE_CLICKS_EVENT, threeClickHandler);
+        });
+    </script>
+</head>
+
+<body>
+    <button id="buttonCusomEvent">When this button is hit three time a custom event is fired</button>
+    <div id="console"></div>
+</body>
+
+</html>
