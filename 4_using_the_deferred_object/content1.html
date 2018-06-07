@@ -1,3 +1,13 @@
-<div>
+<div id="content1">
     This is the content 1
 </div>
+<script>
+    $(function () {
+        setTimeout(function () {
+            $("#content1")
+                .append("<hr />")
+                .append("Dynamic content was loaded")
+                .trigger("complete")
+        }, 2000);
+    });
+</script>

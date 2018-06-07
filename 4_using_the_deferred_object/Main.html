@@ -25,6 +25,14 @@
     <script>
         $(document).ready(function () {
 
+            let checkboxFail1 = $("#checkboxFail1");
+            let checkboxFail2 = $("#checkboxFail2");
+            let checkboxFail3 = $("#checkboxFail3");
+
+            /**
+             * Display messages inside a div
+             * under the content divs
+             */
             let writeMessage = function (message) {
                 $("#divMessage").html(
                     $("#divMessage").html() +
@@ -32,17 +40,28 @@
                     message);
             }
 
+            /**
+             * Loads the content divs with static and/or dynamic content.
+             * Using the checkboxes over content divs the operation
+             * could fail on purpose by breaking the url of the content.
+             * If the content is dynamic, it must be informed previously. 
+             * In this case, the promise will wait for the event complete or
+             * failure from inside the loaded conent to resolve or reject respectively.
+             */
             let loadContent = function (options) {
                 let deferred = jQuery.Deferred();
-                let contentUrl = options.url;
+                let forceFailure = options.forceFailure;
+                let contentUrl = options.url + (forceFailure ? "fail" : "");
                 let targetElement = $("#" + options.target);
-
+                let dynamicContent = options.dynamicContent;
 
                 $.get(contentUrl, function () { }, 'html')
                     .done(
                         function (result) {
                             targetElement.html(result);
-                            deferred.resolve();
+                            if (!dynamicContent) {
+                                deferred.resolve();
+                            }
                         })
                     .fail(
                         function (result) {
@@ -50,16 +69,50 @@
                             deferred.reject(result);
                         });
 
+                if (dynamicContent) {
+                    targetElement
+                        /**
+                         * Removing handlers to avoid
+                         * redundanting calls.
+                         */
+                        .off("complete, failure")
+                        .on("complete", function (event) {
+                            deferred.resolve();
+                        })
+                        /**
+                         * Hadling events from inside the loaded content
+                         */
+                        .on("failure", function (event, result) {
+                            writeMessage(
+                                "Error while dynamic loading: "
+                                + contentUrl + ": "
+                                + result.statusText);
+                            deferred.reject();
+                        });
+                }
+
                 return deferred.promise();
             }
 
+            /**
+             * 
+             */
             let load = function () {
+                /**
+                 * Registering three promises, one for each content.
+                 * Also, writeMessage is called twice to show
+                 * that $when is able to work with normal function and promises
+                 * simoutaniously
+                 */
                 $.when(
-                    loadContent({ url: 'content1.html', target: 'checkboxFail1' }),
-                    loadContent({ url: 'content2.html', target: 'checkboxFail2' }),
-                    loadContent({ url: 'content3.html', target: 'checkboxFail3' }),
+                    writeMessage('Starting the process'),
+                    loadContent({ url: 'content1.html', target: 'display1', dynamicContent: true, forceFailure: checkboxFail1.is(':checked') }),
+                    loadContent({ url: 'content2.html', target: 'display2', dynamicContent: false, forceFailure: checkboxFail2.is(':checked') }),
+                    loadContent({ url: 'content3.html', target: 'display3', dynamicContent: false, forceFailure: checkboxFail3.is(':checked') }),
+                    writeMessage('Finishing the process'),
                 )
                     .done(function (result) {
+                        $("#buttonProceed").removeAttr("disabled");
                         writeMessage("All promises were kept");
                     })
                     .fail(function (reason) {
@@ -68,11 +121,23 @@
             };
 
             $("#buttonLoad").on("click", load);
+            $("#buttonProceed").on("click", function () {
+                alert("Proceeding ... ")
+            });
         });
     </script>
 </head>
 
 <body>
+    <pre>
+        In this example, each of the three squares
+        will load content from other documents.
+        To do this, there will be three promises that will load
+        the square with their respective content.
+        After all the content is successfully loaded, the proceed button will be 
+        enable. Althought, if there is a fail it will not happen.
+        All the process will be registered through messages under the squares.
+    </pre>
     <button id="buttonLoad">Load</button>
     <br/>
     <div class="displayContainer">
@@ -90,7 +155,7 @@
         <label for="checkboxFail3">Forces fail</label>
         <div id="display3" class="display"></div>
     </div>
-    <button id="buttonProceed" class="newLine">Proceed</button>
+    <button id="buttonProceed" class="newLine" disabled>Proceed</button>
     <div id="divMessage" class="newLine"></div>
 </body>
 
